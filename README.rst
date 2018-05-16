@@ -16,11 +16,50 @@ Main features
 Installation
 ============
 
-Windows
--------
+Windows, etc.
+-------------
 
 On Windows, pyautomailer can be installed via PyPi (recommended):
 
-.. code-block:: python
+.. code-block:: bash
 
-	python setup.py install
+ pip install pyautomailer
+
+or manually from source code:
+
+.. code-block:: bash
+
+ python setup.py install
+
+Ufficially MacOS and Linux aren't supported but tool use standard Python library that can allow it to work. Not tested at the moment.
+
+Python version
+--------------
+
+The tool working with Python 3.x.
+
+Usage
+=====
+
+Examples
+--------
+
+Meta
+====
+
+Related projects
+----------------
+
+Dependencies
+~~~~~~~~~~~~
+
+Change log
+----------
+
+Licence
+-------
+
+Authors
+-------
+
+Matteo Cappello created pyautomailer.
