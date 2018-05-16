@@ -2,6 +2,7 @@ import smtplib
 from email.message import EmailMessage
 from pyautomailer.importer import Importer
 from pyautomailer.body import Body
+from pyautomailer.subject import Subject
 
 class PyAutoMailer:
 
@@ -11,7 +12,7 @@ class PyAutoMailer:
     ec_user = '' # username
     ec_pwd = '' # password
 
-    m_subject = ''
+    m_subject = '' # Email subject
 
     def set(self, m_from, m_subject, source_file, body_file):
         self.m_from = m_from
@@ -35,8 +36,9 @@ class PyAutoMailer:
     def run_service(self, test_mode):
         for i in range(1,len(self.importer.records_fields)):
             b = Body(self.body_file, self.importer.records_fields, i)
+            dynamic_subject = Subject(self.m_subject, self.importer.records_fields, i)
             msg = self.create_message(
-                self.m_subject,
+                dynamic_subject.subject,
                 self.m_from, # Sender.
                 self.importer.records_fields[i][0], # First fields is email.
                 b.html)
