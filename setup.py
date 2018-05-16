@@ -5,7 +5,7 @@ def readme():
         return f.read()
 
 setup(name='pyautomailer',
-      version='0.1',
+      version='0.1.1-dev',
       description='A fully customizable automatic email client service.',
       long_description=readme(),
       classifiers=[
