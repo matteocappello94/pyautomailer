@@ -1,14 +1,11 @@
 class Body:
 
-    html = '' # Email html body.
-    source_fields = [] # Fields loaded from csv input file.
-    index_fields = 1 # Index of record in source input file.
-    file_readed = False # Indicates that input file is readed successfully or not.
-    fields_found = [] # Fields found into html body.
-    fields_loaded = [] # Fields loaded into html body.
-    fields_unloaded = [] # Fields unloaded / not found in input file.
-
     def __init__(self, input_file, records_fields, index_fields):
+        self.html = '' # Email html body.
+        self.file_readed = False # Indicates that input file is readed successfully or not.
+        self.fields_found = [] # Fields found into html body.
+        self.fields_loaded = [] # Fields loaded into html body.
+        self.fields_unloaded = [] # Fields unloaded / not found in input file.
         self.input_file = input_file
         self.source_fields = records_fields
         self.index_fields = index_fields

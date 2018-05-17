@@ -1,13 +1,9 @@
 class Subject:
 
-    subject = '' # Elaborated email subject.
-    source_fields = [] # Fields loaded from csv input file.
-    index_fields = 1 # Index of record in source input file.
-    fields_found = [] # Fields found into subject.
-    fields_loaded = [] # Fields loaded into subject.
-    fields_unloaded = [] # Fields unloaded / not found in input file.
-
     def __init__(self, subject, records_fields, index_fields):
+        self.fields_found = [] # Fields found into subject.
+        self.fields_loaded = [] # Fields loaded into subject.
+        self.fields_unloaded = [] # Fields unloaded / not found in input file.
         self.subject = subject
         self.source_fields = records_fields
         self.index_fields = index_fields
