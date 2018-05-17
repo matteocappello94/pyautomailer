@@ -9,6 +9,8 @@ This document records all notable changes to pyautomailer.
 -------------------------
 
 * Added dynamic subjects.
+* Added dynamic attachments.
+* Several bug fix.
 
 `0.1`_ (2018-05-16)
 -------------------
