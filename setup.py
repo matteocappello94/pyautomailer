@@ -6,10 +6,10 @@ def readme():
 
 setup(name='pyautomailer',
       version='0.1.1-dev',
-      description='A fully customizable automatic email client service.',
+      description='A fully customizable automatic bulk email sending script.',
       long_description=readme(),
       classifiers=[
-            'Development Status :: 2 - Pre-Alpha',
+            'Development Status :: 3 - Alpha',
             'License :: OSI Approved :: MIT License',
             'Programming Language :: Python :: 3.6',
             'Topic :: Communications :: Email',
