@@ -2,46 +2,109 @@ import os
 import smtplib
 import mimetypes
 from email.message import EmailMessage
+from enum import Enum
 from pyautomailer.importer import Importer
-from pyautomailer.body import Body
+from pyautomailer.body import Body, BodyType
 from pyautomailer.subject import Subject
 from pyautomailer.attachment import Attachment
 
+class PyAutoMailerMode(Enum):
+    BULK_SEND = 1
+    ONE_SEND = 2
+
 class PyAutoMailer:
 
-    def set(self, m_from, m_subject, source_file, body_file):
-        self.m_from = m_from
-        self.m_subject = m_subject
-        self.source_file = source_file
-        self.body_file = body_file
-        self.importer = Importer(self.source_file)
+    def __init__(self, m_sender, ec_host, ec_port, ec_user, ec_pwd):
+        # Email client init.
+        self.ec = self.init_SMTP(ec_host, ec_port, ec_user, ec_pwd)
+        self.mode = None
+        self.test = False # Test mode default false
+        self.sender = m_sender
+        self.subject = None
+        self.body = None
+        self.body_file = None
 
-    def set_emailclient(self, host, port, user, pwd):
-        self.ec_host = host
-        if port != None:
-            self.ec_port = port
-        else:
-            self.ec_port = 25 # Default email client port
-        self.ec_user = user
-        self.ec_pwd = pwd
-        self.ec = smtplib.SMTP(self.ec_host, self.ec_port)
-        self.ec.login(self.ec_user, self.ec_pwd)
+    def init_SMTP(self, host, port, user, pwd):
+        if port == None:
+            port = 25 # Default email client port
+        ec = smtplib.SMTP(host, port)
+        ec.login(user, pwd)
+        return ec
 
-    def emailclient_quit(self):
+    @property
+    def mode(self):
+        return self.__mode
+
+    @mode.setter
+    def mode(self, mode):
+        self.__mode = mode
+
+    @property
+    def test(self):
+        return self.__test
+
+    @test.setter
+    def test(self, test):
+        self.__test = test
+
+    @property
+    def sender(self):
+        return self.__sender
+
+    @sender.setter
+    def sender(self, sender):
+        self.__sender = sender
+
+    @property
+    def subject(self):
+        return self.__subject
+
+    @subject.setter
+    def subject(self, subject):
+        self.__subject = subject
+
+    @property
+    def body(self):
+        return self.__body
+
+    @body.setter
+    def body(self, body):
+        self.__body = body
+
+    @property
+    def body_file(self):
+        return self.__body_file
+
+    @body_file.setter
+    def body_file(self, body_file):
+        self.__body_file = body_file
+
+    # Close SMTP connection
+    def close(self):
         self.ec.quit()
 
-    def run_service(self, test_mode):
-        for i in range(1,len(self.importer.records_fields)):
-            b = Body(self.body_file, self.importer.records_fields, i)
-            dynamic_subject = Subject(self.m_subject, self.importer.records_fields, i)
-            msg = self.create_message(
-                dynamic_subject.subject,
-                self.m_from, # Sender.
-                self.importer.records_fields[i][0], # First fields is email.
-                b.html,
-                i)
-            if not test_mode:
-                self.ec.send_message(msg)
+    # arg stands for source file in bulk-send mode or recipient in one-send
+    # mode.
+    def run_service(self, arg):
+        if self.mode == PyAutoMailerMode.BULK_SEND:
+            self.importer = Importer(arg)
+            for i in range(1,len(self.importer.records_fields)):
+                if self.body is None and self.body_file is not None:
+                    b = Body(BodyType.FILE,
+                             self.body_file, self.importer.records_fields, i)
+                elif self.body is not None and self.body_file is None:
+                    b = Body(BodyType.STRING,
+                             self.body, self.importer.records_fields, i)
+                dynamic_subject = Subject(self.subject,
+                                          self.importer.records_fields, i)
+                msg = self.create_message(
+                    dynamic_subject.subject,
+                    self.sender,
+                    self.importer.records_fields[i][0], # First fields is email.
+                    b.html,
+                    i)
+                if not self.test:
+                    self.ec.send_message(msg)
 
     def create_message(self, m_subject, m_from, m_to, m_body, index_fields):
         m = EmailMessage()

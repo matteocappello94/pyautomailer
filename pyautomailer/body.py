@@ -1,21 +1,33 @@
+from enum import Enum
+
+class BodyType(Enum):
+    FILE = 1
+    STRING = 2
+
 class Body:
 
-    def __init__(self, input_file, records_fields, index_fields):
+    # arg stands for input_file whene b_type is FILE or the body string whene is
+    # STRING.
+    def __init__(self, b_type, arg, records_fields, index_fields):
         self.html = '' # Email html body.
-        self.file_readed = False # Indicates that input file is readed successfully or not.
+        self.file_readed = False    # Indicates that input file is readed
+                                    # successfully or not.
         self.fields_found = [] # Fields found into html body.
         self.fields_loaded = [] # Fields loaded into html body.
         self.fields_unloaded = [] # Fields unloaded / not found in input file.
-        self.input_file = input_file
+        self.arg = arg
         self.source_fields = records_fields
         self.index_fields = index_fields
-        self.read_file()
+        if b_type == BodyType.FILE:
+            self.read_file()
+        elif b_type == BodyType.STRING:
+            self.html = self.arg
         self.load_fields()
         self.upload_fields()
 
     def read_file(self):
         try:
-            with open(self.input_file) as f:
+            with open(self.arg) as f:
                 self.html = f.read()
             f.close()
             self.file_readed = True
@@ -45,8 +57,10 @@ class Body:
                 if f_found == f_source:
                     self.fields_loaded.append(f_found)
                     found = True
-                    self.html = self.field_replacement('{field:\'%s\'}' % (f_found),
-                                      self.source_fields[self.index_fields][i_header])
+                    self.html = self.field_replacement('{field:\'%s\'}' %
+                                                       (f_found),
+                                      self.source_fields[self.index_fields]
+                                                       [i_header])
                 i_header += 1
             if not found:
                 self.fields_unloaded.append(f_found)

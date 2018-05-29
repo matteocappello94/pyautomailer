@@ -1,24 +1,28 @@
 import argparse
 import sys
-from pyautomailer import PyAutoMailer
+from pyautomailer import PyAutoMailer, PyAutoMailerMode
 
 def main():
     parser = parse_args(sys.argv[1:])
-    am = PyAutoMailer()
-    am.set(parser.sender, parser.subject, parser.source_file, parser.body_file)
-    am.set_emailclient(parser.host, parser.port, parser.user, parser.pwd)
-    am.run_service(parser.test)
-    am.emailclient_quit()
+
+    # Auto mailer init.
+    am = PyAutoMailer(parser.sender,
+                      parser.host,
+                      parser.port,
+                      parser.username,
+                      parser.password)
+    
+    # Auto mailer property
+    am.test = parser.test # Test mode
+    am.subject = parser.subject
+    am.body = parser.body
+    am.body_file = parser.body_file
+
+    parser.func(parser, am)
 
 def parse_args(args):
     parser = argparse.ArgumentParser(prog='pyautomailer',
-        description='A fully customizable automatic bulk email sending script',
-        usage='''pyautomailer <command> [<args>]
-
-List of commands:
-    bulk-send   Emails bulk sending mode
-    one-send    Single email send mode
-''')
+        description='A fully customizable automatic bulk email sending script')
     subparsers = parser.add_subparsers(title='List of subcommands',
                                        description='Sending modes')
     bs = subparsers.add_parser('bulk-send', aliases=['bs'])
@@ -36,7 +40,7 @@ List of commands:
         help='sender of message')
     parser.add_argument('-S', '--subject', type=str,
         help='subject of message')
-    body_group = bs.add_mutually_exclusive_group()
+    body_group = parser.add_mutually_exclusive_group()
     body_group.add_argument('-BF', '--body-file', type=str,
         help='a file that contains HTML body code')
     body_group.add_argument('-B', '--body', type=str,
@@ -51,5 +55,27 @@ List of commands:
     # One send arguments
     os.add_argument('recipient', metavar='RECIPIENT', type=str,
         help='recipient of message')
+
+    # Commands function
+    bs.set_defaults(func=bulk_send)
+    os.set_defaults(func=one_send)
     
     return parser.parse_args(args)
+
+# Bulk-send mode function
+def bulk_send(args, am):
+    am.mode = PyAutoMailerMode.BULK_SEND
+    run_service(am, args.source_file)
+
+# One-send mode function
+def one_send(args, am):
+    am.mode = PyAutoMailerMode.ONE_SEND
+    run_service(am, args.recipient)
+
+def run_service(am, arg):
+    # Start sending service
+    am.run_service(arg)
+    
+    # Close connection
+    am.close()
+

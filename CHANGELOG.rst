@@ -7,7 +7,12 @@ This document records all notable changes to pyautomailer project.
 To do
 -----
 
-Soon...
+* One-send mode. **[IN DEVELOPMENT]**
+* Test mode.
+* Multi recipient email addresses in one-send mode.
+* Log file with path setting.
+* Exception improvements.
+* Unit test improvements.
 
 0.1.1-dev (unreleased)
 -------------------------
