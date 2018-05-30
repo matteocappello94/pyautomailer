@@ -132,7 +132,7 @@ as command-line tool
 
 	$ pyautomailer [-h] [-H HOST] [-P PORT] [-U USERNAME] [-PWD PASSWORD] [-SND SENDER] [-S SUBJECT] [-BF BODY_FILE | -B BODY] [-t] {bulk-send,bs,one-send,os} ...
 	
-See also ``pyautomailer --help`` or ``pyautomailer <command> --help``.
+See also ``pyautomailer --help`` and ``pyautomailer <command> --help``.
 
 Examples
 ~~~~~~~~
