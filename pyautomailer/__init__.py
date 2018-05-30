@@ -103,8 +103,17 @@ class PyAutoMailer:
                     self.importer.records_fields[i][0], # First fields is email.
                     b.html,
                     i)
-                if not self.test:
-                    self.ec.send_message(msg)
+        elif self.mode == PyAutoMailerMode.ONE_SEND:
+            # One-send mode not support dynamics body message, Body class isn't
+            # used.
+            msg = self.create_message(
+                self.subject,
+                self.sender,
+                arg, # Recipient in this mode.
+                self.body,
+                None) # Index field is None in this mode.
+        if not self.test:
+            self.ec.send_message(msg)
 
     def create_message(self, m_subject, m_from, m_to, m_body, index_fields):
         m = EmailMessage()
@@ -115,17 +124,17 @@ class PyAutoMailer:
         m['To'] = m_to
 
         # Attachments section
-        if self.importer.attachments:
-            att = Attachment(self.importer.records_fields, index_fields)
-            for att_file in att.attachments_loaded:
-                ctype, encoding = mimetypes.guess_type(att_file)
-                if ctype is None or encoding is not None:
-                    ctype = 'application/octet-stream'
-                maintype, subtype = ctype.split('/', 1)
-                with open(att_file, 'rb') as af:
-                    m.add_attachment(af.read(),
-                                     maintype=maintype,
-                                     subtype=subtype,
-                                     filename=os.path.basename(att_file))
-        
+        if self.mode == PyAutoMailerMode.BULK_SEND:
+            if self.importer.attachments:
+                att = Attachment(self.importer.records_fields, index_fields)
+                for att_file in att.attachments_loaded:
+                    ctype, encoding = mimetypes.guess_type(att_file)
+                    if ctype is None or encoding is not None:
+                        ctype = 'application/octet-stream'
+                    maintype, subtype = ctype.split('/', 1)
+                    with open(att_file, 'rb') as af:
+                        m.add_attachment(af.read(),
+                                         maintype=maintype,
+                                         subtype=subtype,
+                                         filename=os.path.basename(att_file))
         return m

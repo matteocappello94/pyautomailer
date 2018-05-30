@@ -42,7 +42,7 @@ Ufficially MacOS and Linux aren't supported but tool use standard Python library
 Python version
 --------------
 
-Pyautomailer works with Python 3.x.
+Pyautomailer works with Python 3.
 
 Usage
 =====
@@ -50,26 +50,104 @@ Usage
 as Python module
 ----------------
 
-Soon...
+Class initialization indicating SMTP parameters:
+
+.. code-block:: python
+
+	am = PyAutoMailer('SENDER', 'HOST', 25, 'USERNAME', 'PASSWORD')
+
+Set properties:
+
+.. code-block:: python
+
+	am.subject = 'SUBJECT STRING'
+	am.body_file = 'BODYMESSAGE.TXT'
+	
+	# Sending mode
+	am.mode = PyAutoMailerMode.BULK_SEND
+	
+Send messages:
+
+.. code-block:: python
+
+	am.run_service('SOURCEFILE.CSV')
+	
+Close connection:
+
+.. code-block:: python
+
+	am.close()
+
+Additional proprierties
+~~~~~~~~~~~~~~~~~~~~~~~
+   
+.. code-block:: python
+
+	# Enable TEST mode.
+	am.test = True
+	
+	# Set body message with string and not using a text file.
+	am.body = 'BODY OF MESSAGE'
+	
+One-send mode
+~~~~~~~~~~~~~
+
+Pyautomailer can send single email message using ONE_SEND mode.
+
+.. code-block:: python
+
+	# Sending mode
+	am.mode = PyAutoMailerMode.ONE_SEND
+	
+	# Recipient of message is passed as run_service parameter.
+	am.run_service('RECIPIENT')
+	
+Using this mode, dynamic subject and body message aren't supported.
 
 Examples
 ~~~~~~~~
 
-Soon...
+.. code-block:: python
+
+	# Initialization
+	am = PyAutoMailer('sender@email.com', 'smtphost.com', 25, 'senderuser', 'senderpassword')
+
+	# Message proprierties
+	am.subject = 'This is a test email.'
+	am.body_file = 'C:\bodymessage.txt'
+	
+	# Sending mode
+	am.mode = PyAutoMailerMode.BULK_SEND
+
+	# Run sending
+	am.run_service('C:\sourcefile.csv')
+
+	# Close connection
+	am.close()
 
 as command-line tool
 --------------------
 
 .. code-block:: bash
 
-	$ pyautomailer [-h] [-p PORT] [-s SUBJECT] [-t] HOST USER PWD SENDER SOURCE_FILE BODY_FILE
+	$ pyautomailer [-h] [-H HOST] [-P PORT] [-U USERNAME] [-PWD PASSWORD] [-SND SENDER] [-S SUBJECT] [-BF BODY_FILE | -B BODY] [-t] {bulk-send,bs,one-send,os} ...
 	
-See also ``pyautomailer --help``.
+See also ``pyautomailer --help`` or ``pyautomailer <command> --help``.
 
 Examples
 ~~~~~~~~
 
-Soon...
+Bulk sending mode:
+
+.. code-block:: bash
+
+	$ pyautomailer -H smtphost.com -U senderuser -PWD senderpassword -SND sender@email.com -S "This is a test email." -BF "C:\bodymessage.txt" bulk-send "C:\sourcefile.csv"
+
+One email sending mode:
+
+.. code-block:: bash
+
+	$ pyautomailer -H smtphost.com -U senderuser -PWD senderpassword -SND sender@email.com -S "This is a test email." -B "This is body message of email." one-send mariorossi@email.com
 
 Meta
 ====

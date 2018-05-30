@@ -7,9 +7,10 @@ This document records all notable changes to pyautomailer project.
 To do
 -----
 
-* One-send mode. **[IN DEVELOPMENT]**
 * Test mode.
 * Multi recipient email addresses in one-send mode.
+* Attachments support in one-send mode.
+* Console log.
 * Log file with path setting.
 * Exception improvements.
 * Unit test improvements.
@@ -19,6 +20,7 @@ To do
 
 * Added dynamic subjects.
 * Added dynamic attachments.
+* Added one-send mode.
 * Several bug fix.
 
 `0.1`_ (2018-05-16)
