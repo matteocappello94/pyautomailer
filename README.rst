@@ -50,6 +50,12 @@ Usage
 as Python module
 ----------------
 
+Import module:
+
+.. code-block:: python
+
+	from pyautomailer import PyAutoMailer, PyAutoMailerMode
+
 Class initialization indicating SMTP parameters:
 
 .. code-block:: python
@@ -108,6 +114,8 @@ Examples
 ~~~~~~~~
 
 .. code-block:: python
+
+	from pyautomailer import PyAutoMailer, PyAutoMailerMode
 
 	# Initialization
 	am = PyAutoMailer('sender@email.com', 'smtphost.com', 25, 'senderuser', 'senderpassword')
