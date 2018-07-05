@@ -98,17 +98,22 @@ Additional proprierties
 One-send mode
 ~~~~~~~~~~~~~
 
-Pyautomailer can send single email message using ONE_SEND mode.
+Pyautomailer can send single email message using ONE-SEND mode.
 
 .. code-block:: python
 
 	# Sending mode
 	am.mode = PyAutoMailerMode.ONE_SEND
 	
+	# Attachments
+	am.attachments = ['PATH_TO_ATTACHMENT_1','PATH_TO_ATTACHMENT_1',...]
+	
 	# Recipient of message is passed as run_service parameter.
 	am.run_service('RECIPIENT')
-	
-Using this mode, dynamic subject and body message aren't supported.
+
+Attachments properties is available only in ONE-SEND mode.
+
+Using this mode, dynamic subject and dynamics body message aren't supported.
 
 Examples
 ~~~~~~~~
@@ -138,7 +143,7 @@ as command-line tool
 
 .. code-block:: bash
 
-	$ pyautomailer [-h] [-H HOST] [-P PORT] [-U USERNAME] [-PWD PASSWORD] [-SND SENDER] [-S SUBJECT] [-BF BODY_FILE | -B BODY] [-t] {bulk-send,bs,one-send,os} ...
+	$ pyautomailer [-h] [-H HOST] [-P PORT] [-U USERNAME] [-PWD PASSWORD] [-SND SENDER] [-S SUBJECT] [-A ATTACHMENTS] [-BF BODY_FILE | -B BODY] [-t] {bulk-send,bs,one-send,os} ...
 	
 See also ``pyautomailer --help`` and ``pyautomailer <command> --help``.
 
@@ -155,7 +160,7 @@ One email sending mode:
 
 .. code-block:: bash
 
-	$ pyautomailer -H smtphost.com -U senderuser -PWD senderpassword -SND sender@email.com -S "This is a test email." -B "This is body message of email." one-send mariorossi@email.com
+	$ pyautomailer -H smtphost.com -U senderuser -PWD senderpassword -SND sender@email.com -S "This is a test email." -A "C:\attachment_1.jpg,C:\attachments_2.txt" -B "This is body message of email." one-send mariorossi@email.com
 
 Meta
 ====

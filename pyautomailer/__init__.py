@@ -23,6 +23,7 @@ class PyAutoMailer:
         self.subject = None
         self.body = None
         self.body_file = None
+        self.attachments = None # Used in ONE_SEND mode.
 
     def init_SMTP(self, host, port, user, pwd):
         if port == None:
@@ -79,6 +80,14 @@ class PyAutoMailer:
     def body_file(self, body_file):
         self.__body_file = body_file
 
+    @property
+    def attachments(self):
+        return self.__attachments
+
+    @attachments.setter
+    def attachments(self, attachments):
+        self.__attachments = attachments
+
     # Close SMTP connection
     def close(self):
         self.ec.quit()
@@ -124,10 +133,17 @@ class PyAutoMailer:
         m['To'] = m_to
 
         # Attachments section
+        atts_file = None
         if self.mode == PyAutoMailerMode.BULK_SEND:
             if self.importer.attachments:
                 att = Attachment(self.importer.records_fields, index_fields)
-                for att_file in att.attachments_loaded:
+                atts_file = att.attachments_loaded
+        elif self.mode == PyAutoMailerMode.ONE_SEND:
+            if self.attachments is not None:
+                atts_file = self.attachments
+                
+        if atts_file is not None:
+            for att_file in atts_file:
                     ctype, encoding = mimetypes.guess_type(att_file)
                     if ctype is None or encoding is not None:
                         ctype = 'application/octet-stream'
@@ -137,4 +153,5 @@ class PyAutoMailer:
                                          maintype=maintype,
                                          subtype=subtype,
                                          filename=os.path.basename(att_file))
+            
         return m

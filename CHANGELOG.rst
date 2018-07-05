@@ -9,7 +9,6 @@ To do
 
 * Test mode.
 * Multi recipient email addresses in one-send mode.
-* Attachments support in one-send mode.
 * Console log.
 * Log file with path setting.
 * Exception improvements.
@@ -21,6 +20,7 @@ To do
 * Added dynamic subjects.
 * Added dynamic attachments.
 * Added one-send mode.
+* Added attachments support in one-send mode.
 * Several bug fix.
 
 `0.1`_ (2018-05-16)
