@@ -13,6 +13,7 @@ To do
 * Log file with path setting.
 * Exception improvements.
 * Unit test improvements.
+* Python 2 support.
 
 0.1.1-dev (unreleased)
 -------------------------
