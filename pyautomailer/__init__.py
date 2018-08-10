@@ -1,10 +1,11 @@
 import os
 import smtplib
 import mimetypes
+import logging as log
 from email.message import EmailMessage
 from enum import Enum
 from pyautomailer.importer import Importer
-from pyautomailer.body import Body, BodyType
+from pyautomailer.body import *
 from pyautomailer.subject import Subject
 from pyautomailer.attachment import Attachment
 
@@ -19,11 +20,24 @@ class PyAutoMailer:
         self.ec = self.init_SMTP(ec_host, ec_port, ec_user, ec_pwd)
         self.mode = None
         self.test = False # Test mode default false
+        self.log_file = None
+        self.log_level = log.INFO # Default log level
         self.sender = m_sender
         self.subject = None
         self.body = None
         self.body_file = None
         self.attachments = None # Used in ONE_SEND mode.
+
+        # Init log
+        self.logger = log.getLogger(__name__)
+        self.logger.setLevel(log.DEBUG)
+        
+        # Init console logger
+        console_logger = log.StreamHandler()
+        console_logger.setLevel(log.INFO) # Console log default set on INFO
+        console_formatter = log.Formatter('%(levelname)s - %(message)s')
+        console_logger.setFormatter(console_formatter)
+        self.logger.addHandler(console_logger)
 
     def init_SMTP(self, host, port, user, pwd):
         if port == None:
@@ -47,6 +61,31 @@ class PyAutoMailer:
     @test.setter
     def test(self, test):
         self.__test = test
+
+    @property
+    def log_file(self):
+        return self.__log_file
+
+    @log_file.setter
+    def log_file(self, log_file):
+        self.__log_file = log_file
+        
+        # Init file logger
+        if self.log_file is not None:
+            file_logger = log.FileHandler(self.log_file)
+            file_logger.setLevel(self.log_level)
+            file_formatter = log.Formatter('%(asctime)s - %(name)s - \
+%(levelname)s - %(message)s')
+            file_logger.setFormatter(file_formatter)
+            self.logger.addHandler(file_logger)
+
+    @property
+    def log_level(self):
+        return self.__log_level
+
+    @log_level.setter
+    def log_level(self, log_level):
+        self.__log_level = log_level
 
     @property
     def sender(self):
@@ -95,34 +134,41 @@ class PyAutoMailer:
     # arg stands for source file in bulk-send mode or recipient in one-send
     # mode.
     def run_service(self, arg):
-        if self.mode == PyAutoMailerMode.BULK_SEND:
-            self.importer = Importer(arg)
-            for i in range(1,len(self.importer.records_fields)):
-                if self.body is None and self.body_file is not None:
-                    b = Body(BodyType.FILE,
-                             self.body_file, self.importer.records_fields, i)
-                elif self.body is not None and self.body_file is None:
-                    b = Body(BodyType.STRING,
-                             self.body, self.importer.records_fields, i)
-                dynamic_subject = Subject(self.subject,
-                                          self.importer.records_fields, i)
+        try:
+            if self.mode == PyAutoMailerMode.BULK_SEND:
+                self.importer = Importer(arg)
+                for i in range(1,len(self.importer.records_fields)):
+                    if self.body is None and self.body_file is not None:
+                        try:
+                            b = Body(BodyType.FILE,
+                                     self.body_file,
+                                     self.importer.records_fields, i)
+                        except BodyFileNotFoundError:
+                            raise RunServiceError
+                    elif self.body is not None and self.body_file is None:
+                        b = Body(BodyType.STRING,
+                                 self.body, self.importer.records_fields, i)
+                    dynamic_subject = Subject(self.subject,
+                                              self.importer.records_fields, i)
+                    msg = self.create_message(
+                        dynamic_subject.subject,
+                        self.sender,
+                        self.importer.records_fields[i][0], # First fields is email.
+                        b.html,
+                        i)
+            elif self.mode == PyAutoMailerMode.ONE_SEND:
+                # One-send mode not support dynamics body message, Body class isn't
+                # used.
                 msg = self.create_message(
-                    dynamic_subject.subject,
+                    self.subject,
                     self.sender,
-                    self.importer.records_fields[i][0], # First fields is email.
-                    b.html,
-                    i)
-        elif self.mode == PyAutoMailerMode.ONE_SEND:
-            # One-send mode not support dynamics body message, Body class isn't
-            # used.
-            msg = self.create_message(
-                self.subject,
-                self.sender,
-                arg, # Recipient in this mode.
-                self.body,
-                None) # Index field is None in this mode.
-        if not self.test:
-            self.ec.send_message(msg)
+                    arg, # Recipient in this mode.
+                    self.body,
+                    None) # Index field is None in this mode.
+            if not self.test:
+                self.ec.send_message(msg)
+        except RunServiceError:
+            self.logger.error('Service terminated with error!')
 
     def create_message(self, m_subject, m_from, m_to, m_body, index_fields):
         m = EmailMessage()
@@ -155,3 +201,7 @@ class PyAutoMailer:
                                          filename=os.path.basename(att_file))
             
         return m
+    
+class RunServiceError(Exception):
+    pass
+

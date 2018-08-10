@@ -1,5 +1,6 @@
 import argparse
 import sys
+import logging as log
 from pyautomailer import PyAutoMailer, PyAutoMailerMode
 
 def main():
@@ -14,6 +15,9 @@ def main():
     
     # Auto mailer property
     am.test = parser.test # Test mode
+    am.log_file = parser.log_file
+    am.log_level = get_log_level(parser.log_level)
+    
     am.subject = parser.subject
     am.body = parser.body
     am.body_file = parser.body_file
@@ -53,6 +57,15 @@ def parse_args(args):
                         help='body message')        
     parser.add_argument('-t', '--test', action='store_true',
                         help='run script in TEST mode without sending emails')
+    parser.add_argument('-lf', '--log-file', type=str,
+                        help='log file path')
+    parser.add_argument('-ll', '--log-level', type=str,
+                        choices=['CRITICAL',
+                                 'ERROR',
+                                 'WARNING',
+                                 'INFO',
+                                 'DEBUG'],
+                        help='log level, default set to INFO')
 
     # Bulk send arguments
     bs.add_argument('source_file', metavar='SOURCE_FILE', type=str,
@@ -78,6 +91,17 @@ def bulk_send(args, am):
 def one_send(args, am):
     am.mode = PyAutoMailerMode.ONE_SEND
     run_service(am, args.recipient)
+
+# From log_level string get log_level object of logging module
+def get_log_level(self, log_level = 'INFO'):
+    str_log_level = { 'CRITICAL': log.CRITICAL,
+                      'ERROR': log.ERROR,
+                      'WARNING': log.WARNING,
+                      'INFO': log.INFO,
+                      'DEBUG': log.DEBUG
+                      }
+    ll = str_log_level.get(log_level, lambda: log.INFO)
+    return ll
 
 def run_service(am, arg):
     # Start sending service

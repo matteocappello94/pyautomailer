@@ -1,6 +1,11 @@
+import logging as log
+
 class Importer:
 
     def __init__(self, input_file):
+        # Init log
+        self.logger = log.getLogger(__name__)
+        
         self.records_fields = [] # List of input file fields, first is always email to.
         self.file_readed = False # Indicates that file is readed successfully or not.
         self.attachments = False # Indicates the presence of attachments.
@@ -23,4 +28,4 @@ class Importer:
             f.close()
             self.file_readed = True
         except FileNotFoundError:
-            print('Source file not found!')
+            self.logger.error('Source file %s not found!' % (self.input_file))

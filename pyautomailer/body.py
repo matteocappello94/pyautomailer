@@ -1,3 +1,4 @@
+import logging as log
 from enum import Enum
 
 class BodyType(Enum):
@@ -9,6 +10,9 @@ class Body:
     # arg stands for input_file whene b_type is FILE or the body string whene is
     # STRING.
     def __init__(self, b_type, arg, records_fields, index_fields):
+        # Init log
+        self.logger = log.getLogger(__name__)
+        
         self.html = '' # Email html body.
         self.file_readed = False    # Indicates that input file is readed
                                     # successfully or not.
@@ -32,7 +36,8 @@ class Body:
             f.close()
             self.file_readed = True
         except FileNotFoundError:
-            print('Source body file not found!')
+            self.logger.error('Source body file %s not found!' % (self.arg))
+            raise BodyFileNotFoundError
 
     def load_fields(self):
         exp = '{field:\''
@@ -67,4 +72,6 @@ class Body:
 
     def field_replacement(self, exp, replacement):
         return self.html.replace(exp,replacement)
-    
+
+class BodyFileNotFoundError(Exception):
+    pass
